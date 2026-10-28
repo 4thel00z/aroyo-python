@@ -1,0 +1,26 @@
+[package]
+name = "aroyo-py"
+description = "Python bindings for aroyo (extension module aroyo._aroyo)"
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "_aroyo"
+crate-type = ["cdylib"]
+
+[dependencies]
+aroyo-core = { workspace = true }
+arrow-array = { workspace = true }
+arrow-schema = { workspace = true }
+object_store = { workspace = true }
+futures = { workspace = true }
+parquet = { workspace = true }
+tokio = { workspace = true }
+pyo3 = { version = "0.30", features = ["abi3-py312"] }
+pyo3-arrow = "0.20"
+
+[lints]
+workspace = true

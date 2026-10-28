@@ -1,0 +1,53 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "aroyo"
+version = "0.1.0"
+description = "Crash-resumable Parquet multipart uploads to S3-compatible storage, and parallel reads back"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT OR Apache-2.0"
+license-files = ["LICENSE-MIT", "LICENSE-APACHE"]
+authors = [{ name = "4thel00z" }]
+keywords = ["parquet", "arrow", "s3", "multipart", "streaming", "checkpoint", "object-store", "rust"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Database",
+    "Topic :: System :: Archiving",
+]
+
+[project.urls]
+Repository = "https://github.com/4thel00z/aroyo-python"
+Issues = "https://github.com/4thel00z/aroyo-python/issues"
+
+[tool.maturin]
+python-source = "python"
+module-name = "aroyo._aroyo"
+manifest-path = "crates/aroyo-py/Cargo.toml"
+features = ["pyo3/extension-module"]
+include = [
+    { path = "LICENSE-MIT", format = "sdist" },
+    { path = "LICENSE-APACHE", format = "sdist" },
+]
+
+[dependency-groups]
+dev = [
+    "maturin>=1.7",
+    "pytest>=8",
+    "pyarrow>=18",
+    "moto[server]>=5",
+]
+bench = [
+    "pyarrow>=18",
+    "obstore>=0.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
