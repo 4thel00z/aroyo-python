@@ -1,0 +1,30 @@
+[package]
+name = "aroyo-core"
+description = "Crash-resumable Parquet multipart uploads to S3-compatible storage, and parallel reads back"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+arrow-array = { workspace = true }
+arrow-schema = { workspace = true }
+parquet = { workspace = true }
+object_store = { workspace = true }
+bytes = { workspace = true }
+futures = { workspace = true }
+tokio = { workspace = true }
+rayon = { workspace = true }
+serde = { workspace = true }
+serde_bytes = { workspace = true }
+postcard = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+arrow-array = { workspace = true }
+
+arrow-select = "59"
+
+[lints]
+workspace = true

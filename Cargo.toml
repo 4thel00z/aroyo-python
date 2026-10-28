@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+members = ["crates/aroyo-core", "crates/aroyo-py"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/4thel00z/aroyo-python"
+
+[workspace.dependencies]
+aroyo-core = { path = "crates/aroyo-core", version = "0.1.0" }
+arrow-array = "59"
+arrow-schema = "59"
+parquet = { version = "59", features = ["async"] }
+object_store = { version = "0.13", features = ["aws"] }
+bytes = "1"
+futures = "0.3"
+tokio = { version = "1", default-features = false, features = ["rt", "rt-multi-thread", "sync"] }
+rayon = "1"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+postcard = { version = "1", features = ["use-std"] }
+thiserror = "2"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+unreachable = "deny"
+todo = "deny"
+unimplemented = "deny"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
