@@ -1,0 +1,10 @@
+/target
+/dist
+/.venv
+__pycache__/
+*.pyc
+*.so
+*.egg-info/
+.pytest_cache/
+/python/aroyo/_aroyo.*.so
+/benchmarks/results/
