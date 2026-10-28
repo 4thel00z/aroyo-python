@@ -35,9 +35,9 @@ develop: ## Build the extension into the active venv
 test-py: ## Run pytest against an in-process moto S3 (or AROYO_TEST_ENDPOINT)
 	pytest -q
 
-.PHONY: minio
-minio: ## Run a local MinIO for integration tests and benchmarks
-	docker run --rm -p 9000:9000 -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin minio/minio server /data
+.PHONY: s3
+s3: ## Run a local S3-compatible server (RustFS) for integration tests and benchmarks
+	docker run --rm -p 127.0.0.1:9000:9000 -e RUSTFS_ACCESS_KEY=rustfsadmin -e RUSTFS_SECRET_KEY=rustfsadmin rustfs/rustfs:latest
 
 .PHONY: bench
 bench: ## Throughput benchmark; needs AROYO_BENCH_ENDPOINT and AROYO_BENCH_BUCKET

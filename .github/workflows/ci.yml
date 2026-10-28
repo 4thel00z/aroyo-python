@@ -39,28 +39,25 @@ jobs:
       - run: pip install . pytest pyarrow "moto[server]"
       - run: pytest -q
 
-  minio:
-    name: pytest (MinIO)
+  s3:
+    name: pytest (RustFS)
     runs-on: ubuntu-latest
     services:
-      minio:
-        image: minio/minio:latest
+      s3:
+        image: rustfs/rustfs:latest
         env:
-          MINIO_ROOT_USER: minioadmin
-          MINIO_ROOT_PASSWORD: minioadmin
+          RUSTFS_ACCESS_KEY: rustfsadmin
+          RUSTFS_SECRET_KEY: rustfsadmin
         ports:
           - 9000:9000
         options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live"
-          --health-interval 5s --health-timeout 5s --health-retries 10
-          --entrypoint sh
-        volumes:
-          - /data
+          --health-cmd "curl -f http://localhost:9000/health"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     env:
       AROYO_TEST_ENDPOINT: http://127.0.0.1:9000
       AROYO_TEST_BUCKET: aroyo-ci
-      AWS_ACCESS_KEY_ID: minioadmin
-      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_ACCESS_KEY_ID: rustfsadmin
+      AWS_SECRET_ACCESS_KEY: rustfsadmin
       AWS_REGION: us-east-1
     steps:
       - uses: actions/checkout@v4
@@ -70,10 +67,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Create the bucket
-        run: |
-          curl -sSfL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
-          chmod +x /usr/local/bin/mc
-          mc alias set ci http://127.0.0.1:9000 minioadmin minioadmin
-          mc mb --ignore-existing ci/aroyo-ci
+        run: aws --endpoint-url http://127.0.0.1:9000 s3 mb s3://aroyo-ci
       - run: pip install . pytest pyarrow
       - run: pytest -q
