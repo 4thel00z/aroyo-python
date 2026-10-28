@@ -1,0 +1,119 @@
+{
+  "machine": "macOS-27.0.1-arm64-arm-64bit",
+  "cpus": 12,
+  "python": "3.12.10",
+  "pyarrow": "26.0.0",
+  "aroyo": "0.1.0",
+  "rows": 20000000,
+  "payload_bytes": 840000000,
+  "results": [
+    {
+      "name": "aroyo write",
+      "seconds": 3.968335459008813,
+      "payload_bytes": 840000000,
+      "mib_per_second": 201.86963376864833
+    },
+    {
+      "name": "aroyo read (concurrency=8)",
+      "seconds": 2.768810790963471,
+      "payload_bytes": 840000000,
+      "mib_per_second": 289.3250880109773
+    },
+    {
+      "name": "pyarrow write",
+      "seconds": 7.085772874997929,
+      "payload_bytes": 840000000,
+      "mib_per_second": 113.05561720837463
+    },
+    {
+      "name": "pyarrow read",
+      "seconds": 5.618456374853849,
+      "payload_bytes": 840000000,
+      "mib_per_second": 142.5812309171998
+    },
+    {
+      "name": "obstore write",
+      "seconds": 6.081854375079274,
+      "payload_bytes": 840000000,
+      "mib_per_second": 131.71746253309595
+    },
+    {
+      "name": "obstore read",
+      "seconds": 2.6645172089338303,
+      "payload_bytes": 840000000,
+      "mib_per_second": 300.64974738961945
+    },
+    {
+      "name": "aroyo write",
+      "seconds": 4.075836041010916,
+      "payload_bytes": 840000000,
+      "mib_per_second": 196.54530204864648
+    },
+    {
+      "name": "aroyo read (concurrency=8)",
+      "seconds": 3.3026443750131875,
+      "payload_bytes": 840000000,
+      "mib_per_second": 242.55909350762334
+    },
+    {
+      "name": "pyarrow write",
+      "seconds": 6.215990499826148,
+      "payload_bytes": 840000000,
+      "mib_per_second": 128.8751045877009
+    },
+    {
+      "name": "pyarrow read",
+      "seconds": 4.259572082897648,
+      "payload_bytes": 840000000,
+      "mib_per_second": 188.06734812579975
+    },
+    {
+      "name": "obstore write",
+      "seconds": 6.163176457863301,
+      "payload_bytes": 840000000,
+      "mib_per_second": 129.97947264014846
+    },
+    {
+      "name": "obstore read",
+      "seconds": 3.258483124896884,
+      "payload_bytes": 840000000,
+      "mib_per_second": 245.8464245711264
+    },
+    {
+      "name": "aroyo write",
+      "seconds": 3.0826672499533743,
+      "payload_bytes": 840000000,
+      "mib_per_second": 259.86795227197047
+    },
+    {
+      "name": "aroyo read (concurrency=8)",
+      "seconds": 3.202629500068724,
+      "payload_bytes": 840000000,
+      "mib_per_second": 250.1339682795215
+    },
+    {
+      "name": "pyarrow write",
+      "seconds": 7.492842999985442,
+      "payload_bytes": 840000000,
+      "mib_per_second": 106.91354747227541
+    },
+    {
+      "name": "pyarrow read",
+      "seconds": 4.788214250002056,
+      "payload_bytes": 840000000,
+      "mib_per_second": 167.30379718929785
+    },
+    {
+      "name": "obstore write",
+      "seconds": 5.713458250043914,
+      "payload_bytes": 840000000,
+      "mib_per_second": 140.21042785691012
+    },
+    {
+      "name": "obstore read",
+      "seconds": 2.542216750094667,
+      "payload_bytes": 840000000,
+      "mib_per_second": 315.11334576464384
+    }
+  ]
+}

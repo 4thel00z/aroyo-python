@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="262" viewBox="0 0 760 262" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="12">
+<style>.surface{fill:#ffffff}.ink{fill:#1f2328}.muted{fill:#59636e}.grid{stroke:#d1d9e0;stroke-width:1}.s-aroyo{fill:#2a78d6}.s-pyarrow{fill:#eb6834}.s-obstore{fill:#1baf7a}@media (prefers-color-scheme: dark){.surface{fill:#0d1117}.ink{fill:#f0f6fc}.muted{fill:#9198a1}.grid{stroke:#3d444d}.s-aroyo{fill:#3987e5}.s-pyarrow{fill:#d95926}.s-obstore{fill:#199e70}}</style>
+<rect class="surface" width="760" height="262" rx="8"/>
+<text class="ink" x="70" y="24" font-size="15" font-weight="600">Throughput, MiB/s of Arrow data (higher is better)</text>
+<text class="muted" x="70" y="42">20,000,000 rows, 801 MiB per file, 12 cpus, macOS-27.0.1-arm64-arm-64bit, pyarrow 26.0.0, aroyo 0.1.0</text>
+<line class="grid" x1="70.0" y1="64" x2="70.0" y2="206"/>
+<text class="muted" x="70.0" y="224" text-anchor="middle" font-variant-numeric="tabular-nums">0</text>
+<line class="grid" x1="270.0" y1="64" x2="270.0" y2="206"/>
+<text class="muted" x="270.0" y="224" text-anchor="middle" font-variant-numeric="tabular-nums">100</text>
+<line class="grid" x1="470.0" y1="64" x2="470.0" y2="206"/>
+<text class="muted" x="470.0" y="224" text-anchor="middle" font-variant-numeric="tabular-nums">200</text>
+<line class="grid" x1="670.0" y1="64" x2="670.0" y2="206"/>
+<text class="muted" x="670.0" y="224" text-anchor="middle" font-variant-numeric="tabular-nums">300</text>
+<text class="ink" x="58" y="97.0" text-anchor="end" font-weight="600">write</text>
+<path class="s-aroyo" d="M70,64 h434.9 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-434.9 z"/>
+<text class="ink" x="516.9" y="77.0" font-variant-numeric="tabular-nums">219</text>
+<path class="s-pyarrow" d="M70,84 h228.6 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-228.6 z"/>
+<text class="ink" x="310.6" y="97.0" font-variant-numeric="tabular-nums">116</text>
+<path class="s-obstore" d="M70,104 h263.9 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-263.9 z"/>
+<text class="ink" x="345.9" y="117.0" font-variant-numeric="tabular-nums">134</text>
+<text class="ink" x="58" y="181.0" text-anchor="end" font-weight="600">read</text>
+<path class="s-aroyo" d="M70,148 h517.3 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-517.3 z"/>
+<text class="ink" x="599.3" y="161.0" font-variant-numeric="tabular-nums">261</text>
+<path class="s-pyarrow" d="M70,168 h328.0 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-328.0 z"/>
+<text class="ink" x="410.0" y="181.0" font-variant-numeric="tabular-nums">166</text>
+<path class="s-obstore" d="M70,188 h570.4 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-570.4 z"/>
+<text class="ink" x="652.4" y="201.0" font-variant-numeric="tabular-nums">287</text>
+<rect class="s-aroyo" x="70" y="239" width="12" height="12" rx="2"/>
+<text class="ink" x="88" y="249">aroyo</text>
+<rect class="s-pyarrow" x="156" y="239" width="12" height="12" rx="2"/>
+<text class="ink" x="174" y="249">pyarrow</text>
+<rect class="s-obstore" x="258" y="239" width="12" height="12" rx="2"/>
+<text class="ink" x="276" y="249">obstore</text>
+</svg>

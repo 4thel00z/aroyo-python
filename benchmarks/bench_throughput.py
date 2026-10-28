@@ -7,12 +7,15 @@ the endpoint so results can be compared.
 """
 
 import argparse
+import json
 import os
 import platform
 import time
 import uuid
 from collections.abc import Callable
+from dataclasses import asdict
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import pyarrow as pa
@@ -90,20 +93,38 @@ def pyarrow_read(filesystem: "pa.fs.S3FileSystem", key: str) -> int:
         return sum(batch.num_rows for batch in pq.ParquetFile(source).iter_batches())
 
 
+class ObstoreFile:
+    """Adapts obstore's file objects for pyarrow, which expects ``closed`` as a property."""
+
+    def __init__(self, inner: object) -> None:
+        self.inner = inner
+        self.closed = False
+
+    def close(self) -> None:
+        self.closed = True
+        self.inner.close()
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self.inner, name)
+
+
 def obstore_write(store: object, path: str, table: pa.Table, batch_rows: int) -> None:
     import obstore
 
-    with obstore.open_writer(store, path) as sink:
-        with pq.ParquetWriter(sink, table.schema) as writer:
-            for batch in table.to_batches(max_chunksize=batch_rows):
-                writer.write_batch(batch)
+    sink = ObstoreFile(obstore.open_writer(store, path))
+    with pq.ParquetWriter(sink, table.schema) as writer:
+        for batch in table.to_batches(max_chunksize=batch_rows):
+            writer.write_batch(batch)
+    sink.close()
 
 
 def obstore_read(store: object, path: str) -> int:
     import obstore
 
-    with obstore.open_reader(store, path) as source:
-        return sum(batch.num_rows for batch in pq.ParquetFile(source).iter_batches())
+    source = ObstoreFile(obstore.open_reader(store, path))
+    rows = sum(batch.num_rows for batch in pq.ParquetFile(source).iter_batches())
+    source.close()
+    return rows
 
 
 def main() -> None:
@@ -113,6 +134,7 @@ def main() -> None:
     parser.add_argument("--part-size", type=int, default=16 * MIB)
     parser.add_argument("--concurrency", type=int, default=8)
     parser.add_argument("--repeat", type=int, default=1)
+    parser.add_argument("--json", type=Path, default=None, help="also write the results to this file")
     args = parser.parse_args()
 
     endpoint = os.environ["AROYO_BENCH_ENDPOINT"]
@@ -143,7 +165,14 @@ def main() -> None:
         try:
             from obstore.store import S3Store
 
-            store = S3Store.from_env(bucket, endpoint=endpoint, allow_http=endpoint.startswith("http://"))
+            store = S3Store(
+                bucket,
+                endpoint=endpoint,
+                region=os.environ.get("AWS_REGION", "us-east-1"),
+                access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+                client_options={"allow_http": endpoint.startswith("http://")},
+            )
             key_ob = f"bench/{run_id}/obstore.parquet"
             results.append(timed("obstore write", payload_bytes, lambda: obstore_write(store, key_ob, table, args.batch_rows)))
             results.append(timed("obstore read", payload_bytes, lambda: obstore_read(store, key_ob)))
@@ -154,6 +183,20 @@ def main() -> None:
     print(f"{'case':40} {'seconds':>9} {'MiB/s':>9}")
     for result in results:
         print(f"{result.name:40} {result.seconds:9.2f} {result.mib_per_second:9.1f}")
+
+    if not args.json:
+        return
+    report = {
+        "machine": platform.platform(),
+        "cpus": os.cpu_count(),
+        "python": platform.python_version(),
+        "pyarrow": pa.__version__,
+        "aroyo": aroyo.__version__,
+        "rows": args.rows,
+        "payload_bytes": payload_bytes,
+        "results": [asdict(result) | {"mib_per_second": result.mib_per_second} for result in results],
+    }
+    args.json.write_text(json.dumps(report, indent=2) + "\n")
 
 
 if __name__ == "__main__":
