@@ -47,6 +47,7 @@ dependencies = [
  "arrow-array",
  "arrow-schema",
  "arrow-select",
+ "async-trait",
  "bytes",
  "futures",
  "object_store",

@@ -11,13 +11,15 @@ use arrow_array::{
 use arrow_schema::{DataType, Field, Fields, Schema, SchemaRef, TimeUnit};
 use arrow_select::concat::concat_batches;
 use bytes::Bytes;
-use object_store::memory::InMemory;
 use object_store::path::Path;
 use object_store::{ObjectStore, ObjectStoreExt};
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use parquet::arrow::ARROW_SCHEMA_META_KEY;
 use parquet::basic::Compression;
 use tokio::runtime::Handle;
+
+mod support;
+use support::MemoryStore;
 
 use aroyo_core::{
     finish, open, Error, ParquetStreamWriter, ReadOptions, UploadLimits, WriterOptions, WriterState,
@@ -120,7 +122,7 @@ fn batch(start: i64, rows: usize) -> RecordBatch {
     .unwrap()
 }
 
-async fn writer(store: &Arc<InMemory>, path: &str) -> ParquetStreamWriter<InMemory> {
+async fn writer(store: &Arc<MemoryStore>, path: &str) -> ParquetStreamWriter<MemoryStore> {
     ParquetStreamWriter::create(
         Arc::clone(store),
         path,
@@ -132,7 +134,7 @@ async fn writer(store: &Arc<InMemory>, path: &str) -> ParquetStreamWriter<InMemo
     .unwrap()
 }
 
-async fn object_bytes(store: &InMemory, path: &str) -> Bytes {
+async fn object_bytes(store: &MemoryStore, path: &str) -> Bytes {
     store
         .get(&Path::from(path))
         .await
@@ -160,7 +162,7 @@ fn expected(batches: &[RecordBatch], rows: usize) -> RecordBatch {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn checkpoint_footer_makes_a_valid_file_up_to_the_checkpoint() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let batches: Vec<RecordBatch> = (0..5).map(|i| batch(i * 700, 700)).collect();
     let mut writer = writer(&store, "events/a.parquet").await;
     for batch in &batches[..5] {
@@ -198,7 +200,7 @@ async fn checkpoint_footer_makes_a_valid_file_up_to_the_checkpoint() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn writes_after_a_checkpoint_continue_the_same_upload() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let batches: Vec<RecordBatch> = (0..6).map(|i| batch(i * 900, 900)).collect();
     let mut writer = writer(&store, "events/b.parquet").await;
     for batch in &batches[..2] {
@@ -232,7 +234,7 @@ async fn writes_after_a_checkpoint_continue_the_same_upload() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn finish_is_idempotent() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut writer = writer(&store, "events/c.parquet").await;
     writer.write(batch(0, 2500)).await.unwrap();
     let state = writer.checkpoint().await.unwrap();
@@ -245,7 +247,7 @@ async fn finish_is_idempotent() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn finish_reports_a_size_mismatch_instead_of_a_silent_success() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut writer = writer(&store, "events/d.parquet").await;
     writer.write(batch(0, 2500)).await.unwrap();
     let state = writer.checkpoint().await.unwrap();
@@ -264,7 +266,7 @@ async fn finish_reports_a_size_mismatch_instead_of_a_silent_success() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn reader_streams_row_groups_in_order_with_projection() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let batches: Vec<RecordBatch> = (0..7).map(|i| batch(i * 1000, 1000)).collect();
     let mut writer = writer(&store, "events/e.parquet").await;
     for batch in &batches {
@@ -320,7 +322,7 @@ async fn reader_streams_row_groups_in_order_with_projection() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn part_limit_is_refused_before_sending() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut options = options();
     options.limits.max_parts = 2;
     options.part_size = 1024;
@@ -349,7 +351,7 @@ async fn part_limit_is_refused_before_sending() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn part_size_outside_the_store_limits_is_refused() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut options = options();
     options.limits = UploadLimits::S3;
     options.part_size = 1024;
@@ -368,7 +370,7 @@ async fn part_size_outside_the_store_limits_is_refused() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn batches_that_do_not_fit_the_schema_are_refused() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut writer = writer(&store, "events/h.parquet").await;
     let other =
         RecordBatch::try_from_iter([("id", Arc::new(StringArray::from(vec!["x"])) as ArrayRef)])
@@ -379,7 +381,7 @@ async fn batches_that_do_not_fit_the_schema_are_refused() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn state_round_trips_through_bytes() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut writer = writer(&store, "events/i.parquet").await;
     writer.write(batch(0, 1500)).await.unwrap();
     let state = writer.checkpoint().await.unwrap();
@@ -399,7 +401,7 @@ async fn state_round_trips_through_bytes() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn an_empty_file_closes_and_finishes() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let writer = writer(&store, "events/j.parquet").await;
     let pending = writer.close().await.unwrap();
     finish(store.as_ref(), &pending, &limits()).await.unwrap();
@@ -410,7 +412,7 @@ async fn an_empty_file_closes_and_finishes() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn a_checkpoint_before_any_write_still_finishes() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut writer = writer(&store, "events/k.parquet").await;
     let state = writer.checkpoint().await.unwrap();
     assert!(state.parts.is_empty());
@@ -424,7 +426,7 @@ async fn a_checkpoint_before_any_write_still_finishes() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn abort_discards_the_upload() {
-    let store = Arc::new(InMemory::new());
+    let store = Arc::new(MemoryStore::default());
     let mut writer = writer(&store, "events/l.parquet").await;
     writer.write(batch(0, 2000)).await.unwrap();
     let state = writer.checkpoint().await.unwrap();
