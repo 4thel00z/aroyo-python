@@ -25,7 +25,7 @@ jobs:
             manylinux: "2_28"
           - os: macos-latest
             target: aarch64
-          - os: macos-13
+          - os: macos-15-intel
             target: x86_64
           - os: windows-latest
             target: x64
