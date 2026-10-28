@@ -77,7 +77,7 @@ sequenceDiagram
     W--xW: process dies
     F->>S: UploadPart n+1.. (trailing bytes)
     F->>S: CompleteMultipartUpload(parts 1..n+1)
-    Note over F,S: on failure: HEAD; an object of the expected size means success
+    Note over F,S: on failure HEAD the object. The expected size means success
 ```
 
 `checkpoint()` returns a `WriterState`: the parts acknowledged so far and the
